@@ -1,5 +1,5 @@
-Server.java
-package cn;
+//Server.java
+
 import java.net.*;
 import java.io.*;
 
@@ -22,8 +22,9 @@ public class Server {
         ss.close();
     }
 }
-Client.java
-package cn;
+
+//Client.java
+
 import java.io.*;
 import java.net.*;
 
@@ -32,17 +33,17 @@ public class Client {
         Socket s = new Socket("127.0.0.1", 5000);
         System.out.println("Connected");
 
-        DataInputStream in = new DataInputStream(System.in);
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
         String msg = "";
 
         while (!msg.equals("Over")) {
-            msg = in.readLine();
+            msg = br.readLine();
             out.writeUTF(msg);
         }
 
-        in.close();
+        br.close();
         out.close();
         s.close();
     }
