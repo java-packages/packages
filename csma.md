@@ -1,81 +1,150 @@
-//Client1
-
+// CLIENT 1
 import java.io.*;
 import java.net.*;
-import java.util.Random;
 
 public class Client1 {
+
     public static void main(String[] args) {
+
         try {
-            System.out.println("=== CSMA Sender ===");
-            Random r = new Random();
+            System.out.println("============ Client 1 ===============");
 
-            for (int attempt = 1; attempt <= 5; attempt++) {
-                System.out.println("\nAttempt : " + attempt);
-                System.out.println("Checking channel...");
+            Client1 cli = new Client1();
 
-                try {
-                    Socket s = new Socket("localhost", 5000);
-                    System.out.println("Channel idle");
+            int R = 0;
+            boolean bln = false;
 
-                    System.out.println("Waiting IFS...");
-                    Thread.sleep(2000);
+            for (int k = 1; k <= 15; k++) {
 
-                    int backoff = r.nextInt(4) + 1;
-                    System.out.println("Backoff time: " + backoff + " sec");
-                    Thread.sleep(backoff * 1000);
+                System.out.println("\nAttempt : " + k);
 
-                    DataOutputStream out = new DataOutputStream(s.getOutputStream());
-                    out.writeUTF("Frame sent from Client1");
-                    System.out.println("Message sent successfully");
+                // Check channel idle
+                System.out.println("Is Channel idle?");
 
-                    out.close();
-                    s.close();
+                int i = 0;
+
+                while (true) {
+
+                    System.out.print(++i + " ");
+
+                    if (cli.isIdle()) {
+
+                        System.out.println("\nChannel idle");
+
+                        // Wait IFS time
+                        System.out.println("Wait IFS time 5000");
+                        Thread.sleep(5000);
+
+                        // Check still idle
+                        System.out.println("Is still idle?");
+
+                        if (cli.isIdle()) {
+
+                            System.out.println("Still idle");
+
+                            // Random number selection
+                            R = (int) (Math.pow(2, k) - 1);
+
+                            System.out.println("Selected Random number : " + R);
+
+                            System.out.println("Waiting for R slot time : " + (R * 1000));
+
+                            // Wait R slot
+                            Thread.sleep(R * 1000);
+
+                            // Send frame
+                            System.out.println("Message sent");
+
+                            // Wait timeout
+                            System.out.println("Wait for timeout : 10000");
+
+                            Thread.sleep(10000);
+
+                            // ACK check
+                            if (cli.isIdle()) {
+
+                                System.out.println("Ack received");
+
+                                bln = true;
+
+                                break;
+
+                            } else {
+
+                                System.out.println("Ack not received");
+
+                                break;
+                            }
+
+                        } else {
+
+                            System.out.println("Busy, goes to channel idle check");
+                        }
+                    }
+
+                    Thread.sleep(1000);
+                }
+
+                if (bln == true) {
                     break;
-
-                } catch (Exception e) {
-                    System.out.println("Channel busy, retrying...");
-                    Thread.sleep(2000);
                 }
             }
 
         } catch (Exception e) {
+
             System.out.println(e);
+        }
+    }
 
-//Client2
+    boolean isIdle() {
 
+        try {
+
+            Socket soc = new Socket("localhost", 137);
+
+            soc.close();
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+}
+
+
+// CLIENT 2
 import java.io.*;
 import java.net.*;
 
 public class Client2 {
+
     public static void main(String[] args) {
+
         try {
-            ServerSocket ss = new ServerSocket(5000);
-            System.out.println("=== CSMA Receiver ===");
-            System.out.println("Waiting for sender...");
+
+            System.out.println("============ Client 2 ===============");
+
+            ServerSocket ss = new ServerSocket(137);
 
             while (true) {
+
+                System.out.println("Waiting for connection...");
+
                 Socket s = ss.accept();
 
-                DataInputStream in = new DataInputStream(s.getInputStream());
-                String msg = in.readUTF();
+                System.out.println("Connected");
 
-                System.out.println("Received: " + msg);
-
-                in.close();
                 s.close();
             }
 
         } catch (Exception e) {
+
             System.out.println(e);
         }
     }
 }
-        }
-    }
-}
-
-
 
 LAST SATHYA
 import java.util.*;
